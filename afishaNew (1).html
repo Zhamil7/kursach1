@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Афиша - События в городе</title>
+    <style>
+        :root {
+            --color-primary: #2180a0;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-secondary: #626c71;
+            --color-border: #ae5240;
+            --color-success: #2e7d32;
+            --color-error: #c62828;
+            --color-warning: #f57c00;
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--color-surface);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(174, 82, 64, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: rgba(33, 128, 160, 0.1);
+            color: var(--color-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid rgba(174, 82, 64, 0.2);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background: var(--color-bg);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a6a80;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(33, 128, 160, 0.1);
+        }
+
+        .btn-warning {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e65100;
+        }
+
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(33, 128, 160, 0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .event-card {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid rgba(174, 82, 64, 0.12);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .event-card:hover {
+            box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #2180a0 0%, #1e7480 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .event-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .event-description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(174, 82, 64, 0.1);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(33, 128, 160, 0.1);
+            color: var(--color-primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .add-event-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(33, 128, 160, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-event-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(33, 128, 160, 0.4);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            max-width: 750px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            padding: 24px;
+            border-bottom: 1px solid rgba(174, 82, 64, 0.12);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--color-surface);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+        }
+
+        .modal-close:hover {
+            color: var(--color-text);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #2180a0 0%, #1e7480 100%);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .event-details-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .details-section {
+            background: rgba(33, 128, 160, 0.05);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+        }
+
+        .details-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .details-value {
+            font-size: 16px;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+
+        .details-value:last-child {
+            margin-bottom: 0;
+        }
+
+        .full-description {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--color-text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(174, 82, 64, 0.2);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background: var(--color-bg);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(174, 82, 64, 0.2);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background: var(--color-bg);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .error-message {
+            color: var(--color-error);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            color: var(--color-success);
+            font-size: 14px;
+            text-align: center;
+            padding: 12px;
+            background: rgba(46, 125, 50, 0.1);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Auth modal */
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(174, 82, 64, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        footer {
+            background: var(--color-surface);
+            padding: 40px;
+            border-top: 1px solid rgba(174, 82, 64, 0.12);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .footer-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .footer-section a {
+            display: block;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: var(--color-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .event-card {
+                grid-template-columns: 1fr;
+            }
+
+            .event-image {
+                height: 250px;
+            }
+
+            header {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .header-left {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .nav-tabs {
+                margin-left: 0;
+                margin-top: 16px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .add-event-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            footer {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo">📅 Афиша</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('all')" id="tabAll">Все события</button>
+                <button class="nav-tab" onclick="switchTab('profile')" id="tabProfile">Мои события</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Искать события...">
+            </div>
+        </div>
+        <div class="user-actions" id="userActions">
+            <div class="user-info" id="userInfo" style="display: none;" onclick="openProfile()">
+                <div class="user-avatar" id="userAvatar"></div>
+                <span id="userName"></span>
+            </div>
+            <button class="btn btn-outline" onclick="openAuthModal()" id="loginBtn">Войти</button>
+            <button class="btn btn-primary" onclick="openEventModal()" id="addEventBtn" style="display: none;">Добавить событие</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 id="pageTitle">Афиша</h1>
+        <p class="subtitle" id="pageSubtitle">Откройте для себя самые интересные события в вашем городе.</p>
+
+        <div class="events-grid" id="eventsGrid"></div>
+    </div>
+
+    <button class="add-event-btn" onclick="openEventModal()" id="floatingAddBtn" style="display: none;">+</button>
+
+    <!-- Модальное окно просмотра события -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" style="margin: 0;"></h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image" id="modalImage"></div>
+                <h1 class="event-details-title" id="detailsTitle"></h1>
+                
+                <div class="details-section">
+                    <div class="details-label">📅 Дата и время</div>
+                    <div class="details-value" id="detailsDate"></div>
+                    <div class="details-value" id="detailsTime"></div>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-label">📍 Место</div>
+                    <div class="details-value" id="detailsLocation"></div>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-label">👤 Организатор</div>
+                    <div class="details-value" id="detailsAuthor"></div>
+                </div>
+
+                <div class="full-description" id="detailsDescription"></div>
+
+                <div class="event-actions" id="modalActions" style="display: none;">
+                    <button class="btn btn-warning" onclick="editEvent()">Редактировать</button>
+                    <button class="btn btn-danger" onclick="deleteEvent()">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления/редактирования события -->
+    <div class="modal" id="addEventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="eventModalTitle">Добавить новое событие</h2>
+                <button class="modal-close" onclick="closeAddEventModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-message" id="addEventSuccess"></div>
+                
+                <form id="eventForm">
+                    <input type="hidden" id="eventId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Название события</label>
+                        <input type="text" class="form-input" id="eventTitle" required>
+                        <div class="error-message" id="titleError">Пожалуйста, введите название события</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Категория</label>
+                        <select class="form-select" id="eventCategory" required>
+                            <option value="">Выберите категорию</option>
+                            <option value="Музыка">Музыка</option>
+                            <option value="Искусство">Искусство</option>
+                            <option value="Юмор">Юмор</option>
+                            <option value="Театр">Театр</option>
+                            <option value="Еда">Еда</option>
+                            <option value="Спорт">Спорт</option>
+                            <option value="Образование">Образование</option>
+                            <option value="Технологии">Технологии</option>
+                            <option value="Другое">Другое</option>
+                        </select>
+                        <div class="error-message" id="categoryError">Выберите категорию</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Краткое описание</label>
+                        <textarea class="form-input form-textarea" id="eventDescription" required></textarea>
+                        <div class="error-message" id="descriptionError">Введите краткое описание</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Полное описание</label>
+                        <textarea class="form-input form-textarea" id="eventFullDescription" required></textarea>
+                        <div class="error-message" id="fullDescriptionError">Введите полное описание</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Дата</label>
+                        <input type="text" class="form-input" id="eventDate" placeholder="Например: 20 декабря 2024 г. (Пятница)" required>
+                        <div class="error-message" id="dateError">Укажите дату</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Время</label>
+                        <input type="text" class="form-input" id="eventTime" placeholder="Например: 20:00 - 23:00" required>
+                        <div class="error-message" id="timeError">Укажите время</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Место проведения</label>
+                        <input type="text" class="form-input" id="eventLocation" placeholder="Например: Клуб 'Металлург', ул. Ленина, 10, Москва" required>
+                        <div class="error-message" id="locationError">Укажите место проведения</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeAddEventModal()">Отмена</button>
+                        <button type="submit" class="btn btn-primary" id="eventSubmitBtn">Добавить событие</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно авторизации -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Вход / Регистрация</h2>
+                <button class="modal-close" onclick="closeAuthModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                    <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+                </div>
+
+                <div class="success-message" id="authSuccess"></div>
+
+                <form id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="loginEmail" required>
+                        <div class="error-message" id="loginEmailError">Введите корректный email</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="loginPassword" required>
+                        <div class="error-message" id="loginPasswordError">Введите пароль</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Войти</button>
+                    </div>
+                </form>
+
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Имя</label>
+                        <input type="text" class="form-input" id="registerName" required>
+                        <div class="error-message" id="registerNameError">Введите имя</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="registerEmail" required>
+                        <div class="error-message" id="registerEmailError">Введите корректный email</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" id="registerPassword" required minlength="6">
+                        <div class="error-message" id="registerPasswordError">Пароль должен содержать не менее 6 символов</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Подтвердите пароль</label>
+                        <input type="password" class="form-input" id="registerConfirmPassword" required>
+                        <div class="error-message" id="registerConfirmError">Пароли не совпадают</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-section">
+            <div class="logo">📅 Афиша</div>
+            <p style="font-size: 13px; color: var(--color-text-secondary); margin-top: 8px;">
+                Откройте для себя местные события. Ваша афиша в одном месте.
+            </p>
+        </div>
+        <div class="footer-section">
+            <h3>Информация</h3>
+            <a href="#">О нас</a>
+            <a href="#">Контакты</a>
+        </div>
+        <div class="footer-section">
+            <h3>Поддержка</h3>
+            <a href="#">Политика конфиденциальности</a>
+            <a href="#">Условия использования</a>
+        </div>
+    </footer>
+
+    <script>
+        // Инициализация данных
+        let events = JSON.parse(localStorage.getItem('events')) || [
+            {
+                id: 1,
+                title: "Большой рок-концерт",
+                description: "Легендарные рок-группы собираются на одной сцене для незабываемого шоу. Не пропустите!",
+                fullDescription: "Приглашаем вас на незабываемый концерт легендарной рок-группы 'Гром', который состоится 20 сентября в клубе 'Металлург'...",
+                category: "Музыка",
+                date: "20 сентября 2024 г. (Пятница)",
+                time: "20:00 - 23:00",
+                location: "Клуб 'Металлург', ул. Ленина, 10, Москва",
+                author: "Администрация",
+                authorId: null
+            },
+            {
+                id: 2,
+                title: "Выставка современного искусства",
+                description: "Погрузитесь в мир абстракции и инноваций от молодых художников.",
+                fullDescription: "На этой выставке вы сможете увидеть творческие работы молодых художников, которые ломают стереотипы...",
+                category: "Искусство",
+                date: "15-20 ноября, 10:00-18:00",
+                time: "10:00 - 18:00",
+                location: "Галерея современного искусства, ул. Тверская, 15, Москва",
+                author: "Администрация",
+                authorId: null
+            }
+        ];
+
+        // Сохранение пользователей в localStorage
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let currentTab = 'all';
+        let currentEvent = null;
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            renderEvents();
+            setupEventListeners();
+        });
+
+        // Обновление интерфейса в зависимости от статуса пользователя
+        function updateUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            const addEventBtn = document.getElementById('addEventBtn');
+            const floatingAddBtn = document.getElementById('floatingAddBtn');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            const tabProfile = document.getElementById('tabProfile');
+
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                addEventBtn.style.display = 'block';
+                floatingAddBtn.style.display = 'block';
+                userInfo.style.display = 'flex';
+                userName.textContent = currentUser.name;
+                userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+                tabProfile.style.display = 'block';
+            } else {
+                loginBtn.style.display = 'block';
+                addEventBtn.style.display = 'none';
+                floatingAddBtn.style.display = 'none';
+                userInfo.style.display = 'none';
+                tabProfile.style.display = 'none';
+                if (currentTab === 'profile') {
+                    switchTab('all');
+                }
+            }
+        }
+
+        // Переключение между вкладками
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Обновляем активные кнопки
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'all') {
+                document.getElementById('tabAll').classList.add('active');
+                document.getElementById('pageTitle').textContent = 'Афиша';
+                document.getElementById('pageSubtitle').textContent = 'Откройте для себя самые интересные события в вашем городе.';
+            } else {
+                document.getElementById('tabProfile').classList.add('active');
+                document.getElementById('pageTitle').textContent = 'Мои события';
+                document.getElementById('pageSubtitle').textContent = 'События, которые вы добавили.';
+            }
+            
+            renderEvents();
+        }
+
+        // Открытие профиля
+        function openProfile() {
+            if (currentUser) {
+                switchTab('profile');
+            }
+        }
+
+        // Рендер событий
+        function renderEvents(eventsToRender = null) {
+            const grid = document.getElementById('eventsGrid');
+            grid.innerHTML = '';
+
+            let eventsToShow = eventsToRender || events;
+            
+            // Фильтрация по вкладке
+            if (currentTab === 'profile' && currentUser) {
+                eventsToShow = events.filter(event => event.authorId === currentUser.id);
+            }
+
+            // Фильтрация по поиску
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            if (searchQuery) {
+                eventsToShow = eventsToShow.filter(event =>
+                    event.title.toLowerCase().includes(searchQuery) ||
+                    event.category.toLowerCase().includes(searchQuery) ||
+                    event.description.toLowerCase().includes(searchQuery) ||
+                    (event.author && event.author.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if (eventsToShow.length === 0) {
+                if (currentTab === 'profile') {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <h3>Событий пока нет</h3>
+                            <p>Вы еще не добавили ни одного события.</p>
+                            <button class="btn btn-primary" onclick="openEventModal()" style="margin-top: 16px;">Добавить событие</button>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary); padding: 40px;">События не найдены</p>';
+                }
+                return;
+            }
+
+            eventsToShow.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.onclick = () => openModal(event);
+
+                card.innerHTML = `
+                    <div class="event-image">${event.category}</div>
+                    <div class="event-content">
+                        <div>
+                            <h3 class="event-title">${event.title}</h3>
+                            <p class="event-description">${event.description}</p>
+                        </div>
+                        <div class="event-meta">
+                            <span class="badge">${event.category}</span>
+                            <span class="meta-item">📅 ${event.date}</span>
+                            ${event.author ? `<span class="meta-item">👤 ${event.author}</span>` : ''}
+                        </div>
+                        ${currentUser && event.authorId === currentUser.id ? `
+                            <div class="event-actions">
+                                <button class="btn btn-warning" onclick="editEvent(${event.id}); event.stopPropagation();">Редактировать</button>
+                                <button class="btn btn-danger" onclick="deleteEvent(${event.id}); event.stopPropagation();">Удалить</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Открытие модального окна с событием
+        function openModal(event) {
+            currentEvent = event;
+            
+            document.getElementById('modalTitle').textContent = event.title;
+            document.getElementById('detailsTitle').textContent = event.title;
+            document.getElementById('modalImage').textContent = event.category;
+            document.getElementById('detailsDate').textContent = event.date;
+            document.getElementById('detailsTime').textContent = '🕐 ' + event.time;
+            document.getElementById('detailsLocation').textContent = event.location;
+            document.getElementById('detailsAuthor').textContent = event.author || 'Не указан';
+            document.getElementById('detailsDescription').textContent = event.fullDescription;
+
+            // Показываем кнопки редактирования/удаления только для автора
+            const modalActions = document.getElementById('modalActions');
+            if (currentUser && event.authorId === currentUser.id) {
+                modalActions.style.display = 'flex';
+            } else {
+                modalActions.style.display = 'none';
+            }
+
+            document.getElementById('eventModal').classList.add('active');
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('active');
+            currentEvent = null;
+        }
+
+        // Редактирование события
+        function editEvent(eventId = null) {
+            const eventToEdit = eventId ? events.find(e => e.id === eventId) : currentEvent;
+            if (!eventToEdit || !currentUser || eventToEdit.authorId !== currentUser.id) {
+                return;
+            }
+
+            // Заполняем форму данными события
+            document.getElementById('eventModalTitle').textContent = 'Редактировать событие';
+            document.getElementById('eventSubmitBtn').textContent = 'Сохранить изменения';
+            document.getElementById('eventId').value = eventToEdit.id;
+            document.getElementById('eventTitle').value = eventToEdit.title;
+            document.getElementById('eventCategory').value = eventToEdit.category;
+            document.getElementById('eventDescription').value = eventToEdit.description;
+            document.getElementById('eventFullDescription').value = eventToEdit.fullDescription;
+            document.getElementById('eventDate').value = eventToEdit.date;
+            document.getElementById('eventTime').value = eventToEdit.time;
+            document.getElementById('eventLocation').value = eventToEdit.location;
+
+            closeModal();
+            document.getElementById('addEventModal').classList.add('active');
+        }
+
+        // Удаление события
+        function deleteEvent(eventId = null) {
+            const eventToDelete = eventId ? events.find(e => e.id === eventId) : currentEvent;
+            if (!eventToDelete || !currentUser || eventToDelete.authorId !== currentUser.id) {
+                return;
+            }
+
+            if (confirm('Вы уверены, что хотите удалить это событие?')) {
+                const index = events.findIndex(e => e.id === eventToDelete.id);
+                if (index !== -1) {
+                    events.splice(index, 1);
+                    localStorage.setItem('events', JSON.stringify(events));
+                    renderEvents();
+                    closeModal();
+                    showSuccessMessage('Событие удалено!');
+                }
+            }
+        }
+
+        // Открытие модального окна добавления события
+        function openEventModal() {
+            if (!currentUser) {
+                openAuthModal();
+                return;
+            }
+            
+            // Сбрасываем форму
+            document.getElementById('eventModalTitle').textContent = 'Добавить новое событие';
+            document.getElementById('eventSubmitBtn').textContent = 'Добавить событие';
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventId').value = '';
+            document.getElementById('addEventSuccess').classList.remove('show');
+            hideAllErrors('eventForm');
+            
+            document.getElementById('addEventModal').classList.add('active');
+        }
+
+        // Закрытие модального окна добавления события
+        function closeAddEventModal() {
+            document.getElementById('addEventModal').classList.remove('active');
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventId').value = '';
+            document.getElementById('addEventSuccess').classList.remove('show');
+            hideAllErrors('eventForm');
+        }
+
+        // Открытие модального окна авторизации
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+            switchAuthTab('login');
+        }
+
+        // Закрытие модального окна авторизации
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            document.getElementById('authSuccess').classList.remove('show');
+            hideAllErrors('auth');
+        }
+
+        // Переключение между вкладками входа и регистрации
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab:first-child').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelector('.auth-tab:last-child').classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        // Показать ошибку
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        // Скрыть ошибку
+        function hideError(elementId) {
+            document.getElementById(elementId).classList.remove('show');
+        }
+
+        // Скрыть все ошибки формы
+        function hideAllErrors(formType) {
+            if (formType === 'eventForm') {
+                ['titleError', 'categoryError', 'descriptionError', 'fullDescriptionError', 
+                 'dateError', 'timeError', 'locationError'].forEach(id => hideError(id));
+            } else if (formType === 'auth') {
+                ['loginEmailError', 'loginPasswordError', 'registerNameError', 
+                 'registerEmailError', 'registerPasswordError', 'registerConfirmError'].forEach(id => hideError(id));
+            }
+        }
+
+        // Валидация email
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Регистрация пользователя
+        function registerUser(name, email, password) {
+            // Проверяем, не зарегистрирован ли уже пользователь с таким email
+            if (users.some(user => user.email === email)) {
+                showError('registerEmailError', 'Пользователь с таким email уже зарегистрирован');
+                return false;
+            }
+
+            const user = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password
+            };
+
+            users.push(user);
+            localStorage.setItem('users', JSON.stringify(users));
+            return true;
+        }
+
+        // Вход пользователя
+        function loginUser(email, password) {
+            const user = users.find(u => u.email === email && u.password === password);
+            if (!user) {
+                showError('loginPasswordError', 'Неверный email или пароль');
+                return false;
+            }
+            return user;
+        }
+
+        // Сохранение события
+        function saveEvent(eventData) {
+            const eventId = document.getElementById('eventId').value;
+            
+            if (eventId) {
+                // Редактирование существующего события
+                const index = events.findIndex(e => e.id === parseInt(eventId));
+                if (index !== -1 && events[index].authorId === currentUser.id) {
+                    events[index] = {
+                        ...events[index],
+                        ...eventData
+                    };
+                    localStorage.setItem('events', JSON.stringify(events));
+                    return true;
+                }
+                return false;
+            } else {
+                // Добавление нового события
+                const newEvent = {
+                    id: Date.now(),
+                    ...eventData,
+                    author: currentUser.name,
+                    authorId: currentUser.id
+                };
+
+                events.unshift(newEvent);
+                localStorage.setItem('events', JSON.stringify(events));
+                return true;
+            }
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Поиск событий
+            document.getElementById('searchInput').addEventListener('input', () => {
+                renderEvents();
+            });
+
+            // Закрытие модальных окон при клике на фон
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        if (modal.id === 'eventModal') closeModal();
+                        if (modal.id === 'addEventModal') closeAddEventModal();
+                        if (modal.id === 'authModal') closeAuthModal();
+                    }
+                });
+            });
+
+            // Форма входа
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                hideAllErrors('auth');
+
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value.trim();
+
+                let isValid = true;
+
+                if (!email || !isValidEmail(email)) {
+                    showError('loginEmailError', 'Введите корректный email');
+                    isValid = false;
+                }
+
+                if (!password) {
+                    showError('loginPasswordError', 'Введите пароль');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                const user = loginUser(email, password);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateUI();
+                    closeAuthModal();
+                    showSuccessMessage('authSuccess', 'Вход выполнен успешно!');
+                    renderEvents();
+                }
+            });
+
+            // Форма регистрации
+            document.getElementById('registerForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                hideAllErrors('auth');
+
+                const name = document.getElementById('registerName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value.trim();
+                const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+
+                let isValid = true;
+
+                if (!name) {
+                    showError('registerNameError', 'Введите имя');
+                    isValid = false;
+                }
+
+                if (!email || !isValidEmail(email)) {
+                    showError('registerEmailError', 'Введите корректный email');
+                    isValid = false;
+                }
+
+                if (!password || password.length < 6) {
+                    showError('registerPasswordError', 'Пароль должен содержать не менее 6 символов');
+                    isValid = false;
+                }
+
+                if (password !== confirmPassword) {
+                    showError('registerConfirmError', 'Пароли не совпадают');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                if (registerUser(name, email, password)) {
+                    const user = loginUser(email, password);
+                    if (user) {
+                        currentUser = user;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        updateUI();
+                        closeAuthModal();
+                        showSuccessMessage('authSuccess', 'Регистрация прошла успешно!');
+                        renderEvents();
+                    }
+                }
+            });
+
+            // Форма сохранения события
+            document.getElementById('eventForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                hideAllErrors('eventForm');
+
+                const title = document.getElementById('eventTitle').value.trim();
+                const category = document.getElementById('eventCategory').value;
+                const description = document.getElementById('eventDescription').value.trim();
+                const fullDescription = document.getElementById('eventFullDescription').value.trim();
+                const date = document.getElementById('eventDate').value.trim();
+                const time = document.getElementById('eventTime').value.trim();
+                const location = document.getElementById('eventLocation').value.trim();
+
+                let isValid = true;
+
+                if (!title) {
+                    showError('titleError', 'Введите название события');
+                    isValid = false;
+                }
+
+                if (!category) {
+                    showError('categoryError', 'Выберите категорию');
+                    isValid = false;
+                }
+
+                if (!description) {
+                    showError('descriptionError', 'Введите краткое описание');
+                    isValid = false;
+                }
+
+                if (!fullDescription) {
+                    showError('fullDescriptionError', 'Введите полное описание');
+                    isValid = false;
+                }
+
+                if (!date) {
+                    showError('dateError', 'Укажите дату');
+                    isValid = false;
+                }
+
+                if (!time) {
+                    showError('timeError', 'Укажите время');
+                    isValid = false;
+                }
+
+                if (!location) {
+                    showError('locationError', 'Укажите место проведения');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                const eventData = {
+                    title,
+                    category,
+                    description,
+                    fullDescription,
+                    date,
+                    time,
+                    location
+                };
+
+                if (saveEvent(eventData)) {
+                    const successMessage = document.getElementById('eventId').value 
+                        ? 'Событие успешно обновлено!' 
+                        : 'Событие успешно добавлено!';
+                    
+                    document.getElementById('addEventSuccess').textContent = successMessage;
+                    document.getElementById('addEventSuccess').classList.add('show');
+                    
+                    renderEvents();
+                    
+                    // Через 2 секунды закрываем окно
+                    setTimeout(() => {
+                        closeAddEventModal();
+                        document.getElementById('addEventSuccess').classList.remove('show');
+                    }, 2000);
+                }
+            });
+        }
+
+        // Показать сообщение об успехе
+        function showSuccessMessage(message) {
+            alert(message); // В реальном приложении можно использовать toast-уведомления
+        }
+
+        // Выход пользователя
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUI();
+            renderEvents();
+            switchTab('all');
+        }
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
